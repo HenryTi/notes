@@ -4,7 +4,7 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "es5"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -12,15 +12,22 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
+    "noFallthroughCasesInSwitch": true,
+    "module": "CommonJS",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "noEmit": true,
     "jsx": "react",
+    "sourceMap": true,
     "strictNullChecks": false,
     "experimentalDecorators": true,
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "typeRoots": [
+      "node_modules/miniprogram-api-typings",
+      "node_modules/typings",
+      "node_modules/@types"
+    ]
   },
   "include": [
     "src"

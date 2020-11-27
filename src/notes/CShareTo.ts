@@ -8,6 +8,9 @@ export class CShareTo extends CTo {
 	constructor(cApp:any, cNotes:CNotes) {
 		let {currentFold} = cNotes;
 		let {groupFolder, currentNoteItem} = currentFold;
+		if (currentNoteItem === undefined) {
+			currentNoteItem = currentFold.noteItem;
+		}
 		super(cApp, groupFolder, currentNoteItem);
 		this.cNotes = cNotes;
 	}

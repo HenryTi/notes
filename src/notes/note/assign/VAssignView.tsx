@@ -1,6 +1,6 @@
-import { NoteItem } from 'notes/model';
+import { NoteItem } from '../../../notes/model';
 import React from 'react';
-import { List } from 'tonva';
+import { DropdownAction, DropdownActions, List } from '../../../tonva';
 import { VNoteBaseView } from '../../noteBase';
 import { getTaskItemState } from '../task/TaskState';
 import { CNoteAssign } from './CNoteAssign';
@@ -15,13 +15,27 @@ export class VAssignView extends VNoteBaseView<CNoteAssign> {
 		return this.renderVm(VAssignRelatives);
 	}
 
+	right() {
+		let dropdownActions: DropdownAction[] = [
+			{
+				icon:'hand-pointer-o', 
+				caption:'复制任务', 
+				action: this.controller.duplicateAssign,
+				iconClass: 'text-primary'
+			}
+		];
+		return <DropdownActions actions={dropdownActions}
+			icon="plus"
+			itemIconClass="text-info"
+			className="cursor-pointer btn btn-lg text-white p-1 mr-1"/>
+	}
+
 	footer() {
 		return this.renderFooter();
 	}
 
 	protected renderFooter() {
 		return <div className="py-2 pl-3 bg-light border-top d-flex align-items-center">
-			{this.renderShareButton()}
 			{this.controller.cComments.renderWriteComment()}
 		</div>;
 	}
@@ -56,7 +70,7 @@ export class VAssignView extends VNoteBaseView<CNoteAssign> {
 		let {owner, assigned} = noteItem;
 		let state = getTaskItemState(noteItem);
 		let {content, isEnd} = state;
-		return <div className="px-3 py-2 bg-light border-top">
+		return <div className="px-3 py-2 bg-light border-top" onClick={e=>this.controller.showSpawn(noteItem)}>
 			{this.renderContact(owner as number, assigned)}
 			<div className="ml-2"></div>
 			{this.renderStateSpan(content, isEnd)}

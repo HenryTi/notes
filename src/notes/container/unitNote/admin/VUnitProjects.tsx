@@ -1,7 +1,7 @@
 import React from 'react';
-import { VBasePage } from "notes/views/VBasePage";
+import { VBasePage } from "../../../../notes/views/VBasePage";
 import { CAdminBase } from "./CUnitAdmin";
-import { FA, List, Page } from 'tonva';
+import { FA, List, Page } from '../../../../tonva';
 import { BookProject } from '../model';
 
 export class VUnitProjects <C extends CAdminBase> extends VBasePage<C> {

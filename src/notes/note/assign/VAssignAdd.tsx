@@ -16,7 +16,7 @@ export class VAssignAdd extends VAssignEdit {
 			<div className="mr-auto" />
 			{React.createElement(observer(() => <>
 				<button onClick={() => this.onButtonSend()}
-					className="btn btn-primary mr-3" disabled={!this.controller.isNoteChanged}>
+					className="btn btn-primary mr-3" disabled={this.controller.isNoteEmpty}>
 					分派
 				</button>
 			</>))}

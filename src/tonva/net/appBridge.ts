@@ -45,6 +45,8 @@ export let appInFrame:AppInFrame = new AppInFrameClass();
 }*/
 
 export function isBridged():boolean {
+    if (process.env.isMiniprogram)
+        return false;
     return window.self !== window.parent;
 }
 
@@ -86,7 +88,7 @@ window.addEventListener('message', async function(evt) {
             await onAppApiReturn(message);
             break;
         default:
-			if ((message.source as string)?.startsWith('react-devtools') === true) break;
+			if ((message.source as string) && _.startsWith(message.source, 'react-devtools') === true) break;
             window.console.log('message: %s', JSON.stringify(message));
             break;
     }
@@ -163,7 +165,7 @@ export function setAppInFrame(appHash: string):AppInFrame {
 }
 
 export function getExHashPos():number {
-    let hash = document.location.hash;
+    let hash = window.location.hash;
     if (hash !== undefined && hash.length > 0) {
         let pos = hash.lastIndexOf('#tv-');
         if (pos < 0) pos = hash.lastIndexOf('#tvdebug-');
@@ -175,7 +177,7 @@ export function getExHashPos():number {
 export function getExHash():string {
     let pos = getExHashPos();
     if (pos < 0) return undefined;
-    return document.location.hash.substring(pos);
+    return window.location.hash.substring(pos);
 }
 
 export function appUrl(url: string, unitId: number, page?:string, param?:any[]):{url:string; hash:string} {
@@ -286,7 +288,10 @@ export async function bridgeCenterApi(url:string, method:string, body:any):Promi
                 break;
             }
         }
-        (window.opener || window.parent).postMessage({
+        console.log('bridgeCenterApi: url=%s, callId=%s, body=%s', url, callId, body);
+        let o = window.opener || window.parent || window;
+        console.log('bridgeCenterApi: window=%s', o);
+        o?.postMessage({
             type: 'center-api',
             callId: callId,
             url: url,

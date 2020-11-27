@@ -14,7 +14,6 @@ import {guestApi, logoutApis, setCenterUrl, setCenterToken, appInFrame, host, re
 import { resOptions } from '../res/res';
 import { Loading } from './loading';
 import { Navigo, RouteFunc, Hooks, NamedRoute } from './navigo';
-
 import 'font-awesome/css/font-awesome.min.css';
 import '../css/va-form.css';
 import '../css/va.css';
@@ -22,6 +21,7 @@ import '../css/animation.css';
 import { FA } from './simple';
 import { userApi } from '../net';
 import { ReloadPage, ConfirmReloadPage } from './reloadPage';
+import lv from '../entry/login'
 import { PageWebNav } from './page';
 
 const regEx = new RegExp('Android|webOS|iPhone|iPad|' +
@@ -448,7 +448,10 @@ export class Nav {
 		}
 	}
 
-    private async getPredefinedUnitName() {		
+    private async getPredefinedUnitName() {	
+        if (process.env.isMiniprogram) {
+            return '百灵威';
+        }
 		let el = document.getElementById('unit');
 		if (el) {
 			return el.innerText;
@@ -503,15 +506,15 @@ export class Nav {
     private centerHost: string;
     private arrs = ['/test', '/test/'];
     private unitJsonPath():string {
-        let {origin, pathname} = document.location;
+        let {origin, pathname} = window.location; //document.location;
 		pathname = pathname.toLowerCase();
         for (let item of this.arrs) {
-            if (pathname.endsWith(item) === true) {
+            if (_.endsWith(pathname, item) === true) {
                 pathname = pathname.substr(0, pathname.length - item.length);
                 break;
             }
         }
-        if (pathname.endsWith('/') === true || pathname.endsWith('\\') === true) {
+        if (_.endsWith(pathname, '/') === true || _.endsWith(pathname, '\\') === true) {
             pathname = pathname.substr(0, pathname.length-1);
         }
         return origin + pathname + '/unit.json';
@@ -539,13 +542,16 @@ export class Nav {
 	
 	async init() {
 		this.testing = env.testing;
-		await host.start(this.testing);
-		let hash = document.location.hash;
-		if (hash !== undefined && hash.length > 0) {
-			let pos = getExHashPos();
-			if (pos < 0) pos = undefined;
-			this.hashParam = hash.substring(1, pos);
-		}
+        await host.start(this.testing);
+        //if (document.location) {
+            let hash = window.location.hash;
+            if (hash !== undefined && hash.length > 0) {
+                let pos = getExHashPos();
+                if (pos < 0) pos = undefined;
+                this.hashParam = hash.substring(1, pos);
+            }
+        //}
+        
 		let {url, ws, resHost} = host;
 		this.centerHost = url;
 		this.resUrl = resUrlFromHost( resHost);
@@ -830,9 +836,11 @@ export class Nav {
     }
 
     private async getPrivacy(privacy:string):Promise<string> {
-        const headers = new  Headers({
-            "Content-Type":'text/plain'
-       })
+        //const headers = new Headers({
+        //    "Content-Type":'text/plain'
+        //})
+        let headers:{[name:string]: string} = {}; //new Headers();
+        headers['Content-Type'] = 'text/plain';
         let pos = privacy.indexOf('://');
         if (pos > 0) {
             let http = privacy.substring(0, pos).toLowerCase();
@@ -854,9 +862,10 @@ export class Nav {
     }
 
     async showLogin(callback?: (user:User)=>Promise<void>, withBack?:boolean) {
-        let lv = await import('../entry/login');
+        //let lv = await import('../entry/login');
+        
         let loginView = React.createElement(
-			lv.default, 
+			lv, 
 			{withBack, callback}
 		);
         if (withBack !== true) {
@@ -1026,7 +1035,8 @@ export class Nav {
             let registration =await Promise.race([waiting, navigator.serviceWorker.ready]);
             if (registration) registration.unregister();
         }
-		window.document.location.reload();
+        //window.document.location.reload();
+        window.location.reload();
 		// dcloud hbuilder里面的app自动升级，需要清webview的缓存
 		let plus = (window as any).plus;
 		if (plus) {
@@ -1063,7 +1073,7 @@ export class Nav {
     }
 
     async checkVersion():Promise<string> {
-        let {href} = document.location;
+        let {href} = window.location;
         href += (href.indexOf('?')>=0? '&':'?') + '_t_t_=' + new Date().getTime();
         let ret = await fetch(href);
         let r = await ret.text();

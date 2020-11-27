@@ -1,8 +1,8 @@
 import { observable } from "mobx";
 import _ from 'lodash';
-import { EnumNoteType } from "notes/model";
-import { renderIcon } from "notes/noteBase";
-import { CUqBase } from "tapp";
+import { EnumNoteType } from "../../../../notes/model";
+import { renderIcon } from "../../../../notes/noteBase";
+import { CUqBase } from "../../../../tapp";
 import { VRootProjects } from "./VRootProjects";
 import { VUnitProjects } from "./VUnitProjects";
 import { VReportsAdmin } from "./VReportsAdmin";

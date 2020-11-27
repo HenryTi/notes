@@ -1,4 +1,4 @@
-import { Tuid, Query, Action/*, Map, Sheet, Tag*/ } from "tonva";
+import { Tuid, Query, Action/*, Map, Sheet, Tag*/ } from "../tonva";
 
 export enum EnumSpecFolder {notes=1};
 

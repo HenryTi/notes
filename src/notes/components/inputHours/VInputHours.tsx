@@ -1,7 +1,7 @@
 import React from 'react';
 import { CInputHours } from './CInputHours';
 import { VBasePage } from '../../views/VBasePage';
-import { checkHourMinutes, taskTimeToString } from 'notes/model';
+import { checkHourMinutes, taskTimeToString } from '../../../notes/model';
 
 export class VInputHours extends VBasePage<CInputHours> {
 	protected get back(): 'close' | 'back' | 'none' {return 'close'}
@@ -12,14 +12,15 @@ export class VInputHours extends VBasePage<CInputHours> {
 	content() {
 		let render = () => {
 			return <div>
-				<div className="flex-fill mr-3 "><input className="flex-fill form-control border-0"
+				<div className="flex-fill ml-2 mr-2 mt-2 "><input className="flex-fill form-control border-0"
 					type="text" defaultValue={taskTimeToString(this.controller.hourminutes)}
-					placeholder="2.5或者2：30表示两个半小时"
+					placeholder="2.5或者2:30表示两个半小时"
+					autoFocus={true}
 					onBlur={e=>this.onHoursBlur(e)}
 					onChange={e=>this.onHoursChange(e)}/>
 				</div>
 				<button onClick={() => this.onNext()}
-					className="btn btn-primary mr-3" >
+					className="btn btn-primary ml-2 mt-2" >
 					确认
 				</button>
 			</div>

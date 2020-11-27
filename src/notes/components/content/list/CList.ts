@@ -19,6 +19,8 @@ export class CList extends CContent {
 		this.items = obj.items;
 	}
 
+	get isEmpty():boolean { return this.items.length === 0; }
+
 	startInput(): void {
 		super.startInput();
 		this.listInput = new ListInput({

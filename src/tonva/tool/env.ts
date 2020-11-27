@@ -1,4 +1,5 @@
 import { LocalMap } from './localDb';
+import _ from 'lodash';
 
 // 如果路径上有独立的test单词，则是test环境
 function isTesting():boolean {

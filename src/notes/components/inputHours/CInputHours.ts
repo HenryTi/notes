@@ -1,14 +1,15 @@
-//import { observable } from "mobx";
-import { CUqBase } from "tapp";
+import { CUqBase } from "../../../tapp";
+import { VInputHours } from "./VInputHours";
 
-export abstract class CInputHours extends CUqBase {
+export class CInputHours extends CUqBase {
 	hourminutes: number;
 
 	protected async internalStart():Promise<void> {
-		//this.openVPage(VSelectContact);
+		this.openVPage(VInputHours);
 	}
 
-	// async callSelectContact(options: SelectContactOptions): Promise<Contact[]> {
-	// 	return await this.vCall(VSelectContact, options);
-	// }
+	async inputHours(h?:number) {
+		this.hourminutes = h;
+		return await this.vCall(VInputHours);
+	}
 }

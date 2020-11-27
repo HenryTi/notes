@@ -1,4 +1,4 @@
-import { CUqBase } from "tapp";
+import { CUqBase } from "../tapp";
 import { VSelectContact, SelectContactOptions } from "./views";
 import { EnumNoteType, initNoteItemObj, NoteItem } from "./model";
 import { CNoteBase } from "./noteBase";
@@ -109,6 +109,9 @@ export class CNotes extends CUqBase {
 
 	async sendNoteTo(toList:number[]) {
 		let {groupFolder, currentNoteItem} = this.currentFold;
+		if (currentNoteItem === undefined) {
+			currentNoteItem = this.currentFold.noteItem;
+		}
 		let {note} = currentNoteItem;
 		let tos = toList.join('|');
 		await this.uqs.notes.SendNoteTo.submit({groupFolder, note, tos});
@@ -169,6 +172,12 @@ export class CNotes extends CUqBase {
 	showAddAssignPage = () => {
 		let cNoteAssign = new CNoteAssign(this);
 		cNoteAssign.init(undefined);
+		cNoteAssign.showAddPage();
+	}
+
+	duplicateAssign = (param: NoteItem) => {
+		let cNoteAssign = new CNoteAssign(this);
+		cNoteAssign.init(param);
 		cNoteAssign.showAddPage();
 	}
 	

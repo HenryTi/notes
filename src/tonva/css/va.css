@@ -87,6 +87,7 @@ div.tv-page-webnav>article {
 	background: inherit;
 }
 
+/* IFTRUE_isNotMP */
 @media (min-width: 576px) {
 	div.tv-page-webnav>header>main,
 	div.tv-page-webnav>footer>main,
@@ -130,6 +131,7 @@ div.tv-page-webnav>article {
 		max-width: 1140px;
 	}
 }
+/* FITRUE_isNotMP */
 
 div.tv-page-webnav>article>header>nav,
 article>header>nav,

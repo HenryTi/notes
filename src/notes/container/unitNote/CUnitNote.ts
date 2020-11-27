@@ -1,7 +1,7 @@
 import { observable } from "mobx";
-import { EnumNoteType } from "notes/model";
-import { renderIcon } from "notes/noteBase";
-import { Tuid } from "tonva";
+import { EnumNoteType } from "../../../notes/model";
+import { renderIcon } from "../../../notes/noteBase";
+import { Tuid } from "../../../tonva";
 import { CContainer } from "../CContainer";
 import { CRootAdmin, CUnitAdmin } from "./admin";
 import { EnumPeriod, MemberItem, MemberProjectsSum, ProjectSum, UnitItem, UnitProjectsSum } from "./model";

@@ -21,7 +21,7 @@ export abstract class CNoteTask extends CNote {
 	protected rateValue: number;
 	protected rateValueInput: number;
 	assignhours: number;
-	hours: number;
+	@observable hours: number;
 	point: number;
 
 	init(param: NoteItem):void {
@@ -29,23 +29,27 @@ export abstract class CNoteTask extends CNote {
 		this.cContent = new CTaskContent(this.res);
 		if (param) {
 			let {obj} = param;
-			if (obj) {
-				this.cContent.init(obj);
-				this.checkInfo = obj.checkInfo;
-				this.checkInfoInput = this.checkInfo;
-				this.rateInfo = obj.rateInfo;
-				this.rateInfoInput = this.rateInfo;
-				this.rateValue = obj.rateValue;
-				this.rateValueInput = this.rateValue;
-				this.checker = obj.checker;
-				this.rater = obj.rater;
-				this.assignhours = obj.assignhours;
-				this.hours = obj.hours;
-				this.point = obj.point;
-			}
+			this.initobj(obj);
 		}
 		this.cContent.allowCheck = this.allowCheck;
 	}
+
+	protected initobj(obj:any) {
+		if (obj) {
+			this.cContent.init(obj);
+			this.checkInfo = obj.checkInfo;
+			this.checkInfoInput = this.checkInfo;
+			this.rateInfo = obj.rateInfo;
+			this.rateInfoInput = this.rateInfo;
+			this.rateValue = obj.rateValue;
+			this.rateValueInput = this.rateValue;
+			this.checker = obj.checker;
+			this.rater = obj.rater;
+			this.assignhours = obj.assignhours;
+			this.hours = obj.hours;
+			this.point = obj.point;
+		}
+}
 
 	protected endContentInput():any {
 		let obj = super.endContentInput();

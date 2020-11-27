@@ -11,6 +11,7 @@ import { VAssignAdd } from './VAssignAdd';
 //import { VAssignEdit } from './VAssignEdit'
 import { VAssignDir } from './VAssignDir';
 import { CAssignTo } from './CAssignTo';
+import { CTaskObserver } from '../task/CTaskObserver';
 
 export class CNoteAssign extends CNote {
 	cContent: CContent;
@@ -18,7 +19,7 @@ export class CNoteAssign extends CNote {
 	@observable rater: Contact;
 
 	point:number = 100;
-	assignhours:number = 0;
+	@observable assignhours:number = 0;
 	@observable changed:boolean = false;
 
 	init(param: NoteItem): void {
@@ -35,6 +36,9 @@ export class CNoteAssign extends CNote {
 
 	@computed get isContentChanged():boolean {return this.changed || this.cContent.changed}
 	get type():EnumNoteType { return EnumNoteType.assign }
+	@computed get isNoteEmpty(): boolean {
+		return (this.caption === undefined || this.caption.trim().length === 0) || this.cContent.isEmpty;
+	}
 
 	renderIcon(): JSX.Element {
 		return renderIcon('list', 'text-primary');
@@ -58,6 +62,17 @@ export class CNoteAssign extends CNote {
 	showEditPage() {
 		//this.cContent.startInput();
 		//this.openVPage(VAssignEdit);
+	}
+
+	duplicateAssign = () => {
+		//this.owner
+		let noteItem = {...this.noteItem};
+		noteItem.obj = JSON.parse(noteItem.content);
+		noteItem.commentCount = 0;
+		noteItem.commentUnread = 0;
+		noteItem.note = undefined;
+		this.closePage();
+		this.owner.duplicateAssign(noteItem);
 	}
 
 	showAddPage() {
@@ -111,5 +126,13 @@ export class CNoteAssign extends CNote {
 		await this.uqs.notes.AssignTask.submit(data);
 		await this.lodeModel();
 		this.noteItem.spawnCount = this.noteModel.spawn.length;
+	}
+
+	showSpawn = async (noteItem: NoteItem) => {
+		let s = new CTaskObserver(this.owner);
+		s.init(noteItem);
+		await s.lodeModel();
+		s.initModelData();
+		s.showViewPage();
 	}
 }

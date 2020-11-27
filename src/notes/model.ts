@@ -53,6 +53,7 @@ export interface NoteModel {
 	caption: string;
 	content: string;
 	type: EnumNoteType,
+	flowContent?: string;
 	$create: Date;
 	$update: Date;
 	to: Access[];

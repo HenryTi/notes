@@ -1,7 +1,8 @@
-import { checkHourMinutes, taskTimeToString } from 'notes/model';
+import { CInputHours } from '../../../../notes/components';
+import { taskTimeToString } from '../../../../notes/model';
 import React from 'react';
-import { FA, Image, User, UserView } from 'tonva';
-import { none } from 'tool';
+import { FA, Image, User, UserView } from '../../../../tonva';
+import { none } from '../../../../tool';
 import { VTaskView, TaskParam } from '../VTaskView';
 import { CTaskStart } from './CTaskStart';
 
@@ -27,35 +28,43 @@ export class VTaskStart extends VTaskView<CTaskStart> {
 		</div>;
 	}
 
-	protected additionRows: TaskParam[] = [
-		//{label: '分值', values: this.renderPoint()}, 
-		{label: '分派工时', values: this.renderAssignHours()}, 
-		{label: '实际工时', values: this.renderHours()}, 
-	];
+	protected get additionRows(): TaskParam[]  {
+		return 	[
+			//{label: '分值', values: this.renderPoint()}, 
+			{label: '分派工时', values: this.renderAssignHours()}, 
+			{label: '实际工时', values: this.renderHours(), onClick: this.onClickHours}, 
+		];
+	}
 
 	protected renderHours() {
-		return <div className="flex-fill mr-3 "><input className="flex-fill form-control border-0"
-			type="text" defaultValue={taskTimeToString(this.controller.hours)}
-			placeholder="2.5或者2：30表示两个半小时"
-			onBlur={e=>this.onHoursBlur(e)}
-			onChange={e=>this.onHoursChange(e)}/>
+		return <div className="flex-fill form-control border-0">
+			{taskTimeToString(this.controller.hours)}
 		</div>;
 	}
 
-	protected onHoursChange = (evt:React.ChangeEvent<HTMLInputElement>) => {
-		let m = checkHourMinutes(evt.target.value);
-		if (m < 0) {
-			m = 0;
+	private onClickHours = async () => {
+		let chours = new CInputHours(this.controller.owner);
+		let h = await chours.inputHours(this.controller.hours);
+		this.closePage();
+		if (h !== undefined) {
+			this.controller.hours = h;
 		}
-		this.controller.hours = m;
 	}
 
-	protected onHoursBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
-		if (checkHourMinutes(evt.target.value) < 0) {
-			evt.target.value = '';
-			this.controller.hours = 0;
-		}
-	}
+	// protected onHoursChange = (evt:React.ChangeEvent<HTMLInputElement>) => {
+	// 	let m = checkHourMinutes(evt.target.value);
+	// 	if (m < 0) {
+	// 		m = 0;
+	// 	}
+	// 	this.controller.hours = m;
+	// }
+
+	// protected onHoursBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
+	// 	if (checkHourMinutes(evt.target.value) < 0) {
+	// 		evt.target.value = '';
+	// 		this.controller.hours = 0;
+	// 	}
+	// }
 
 	private onDone = async () => {
 		await this.controller.DoneTask();

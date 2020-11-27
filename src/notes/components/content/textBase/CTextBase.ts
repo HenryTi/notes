@@ -5,6 +5,8 @@ export abstract class CTextBase extends CContent {
 	@observable noteContent: string;
 	@observable changedNoteContent: string;
 
+	get isEmpty():boolean { return this.noteContent === undefined || this.noteContent.trim().length === 0; }
+
 	init(obj: any): void {
 		switch (typeof obj) {
 			default: break;				// Add状态，没有初始值

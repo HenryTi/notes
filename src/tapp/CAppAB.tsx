@@ -1,5 +1,5 @@
 import React from 'react';
-import { navigo, View, VPage, WebNav } from 'tonva';
+import { navigo, View, VPage, WebNav } from '../tonva';
 import { CUqApp } from "./CBase";
 
 export class CAppAB extends CUqApp {

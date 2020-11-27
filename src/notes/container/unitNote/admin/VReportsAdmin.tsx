@@ -1,9 +1,9 @@
 import React from 'react';
-import { VBasePage } from "notes/views/VBasePage";
+import { VBasePage } from "../../../../notes/views/VBasePage";
 import { CRootAdmin } from "./CUnitAdmin";
 import { FA, Form, ItemSchema, List, Page, 
 	ButtonSchema, UiButton, 
-	StringSchema, CStringEdit, UiTextItem, UiSchema, Context } from 'tonva';
+	StringSchema, CStringEdit, UiTextItem, UiSchema, Context } from '../../../../tonva';
 import { BookReport } from '../model';
 
 export class VReportsAdmin extends VBasePage<CRootAdmin> {

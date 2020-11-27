@@ -2,18 +2,18 @@
 
 /uq/uq.uq
 /src/tapp/appName.ts
+/debug.log
 # dependencies
 /node_modules
 /.pnp
 .pnp.js
-/debug.log
 
 # testing
 /coverage
 
 # production
-#/build
-
+/build/mp
+/build/mpcp
 # misc
 .DS_Store
 .env.local

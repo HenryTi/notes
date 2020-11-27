@@ -1,14 +1,15 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { VPage, FA, UserView, Image, User } from "tonva";
-import { none } from 'tool';
+import { VPage, FA, UserView, Image, User } from "../../../tonva";
+import { none } from '../../../tool';
 import { Contact } from '../../../model';
 import { SelectContactOptions } from '../../views';
 import { CNoteAssign } from "./CNoteAssign";
 import { CAssignTo } from './CAssignTo';
-import { CNotes } from 'notes/CNotes';
-import { CSelectContact } from 'notes/components/selectContact';
-import { checkHourMinutes, taskTimeToString } from 'notes/model';
+import { CNotes } from '../../../notes/CNotes';
+import { CSelectContact } from '../../../notes/components/selectContact';
+import { taskTimeToString } from '../../../notes/model';
+import { CInputHours } from '../../../notes/components';
 
 export interface Row {
 	label: string;
@@ -46,7 +47,7 @@ export class VAssignParams extends VPage<CAssignTo> {
 		let rows: Row[] = [
 			//{label: '执行人', values: this.renderContacts(), onClick: this.onClickContacts}, 
 			//{label: '分值', values: this.renderPoint()}, 
-			{label: '工时', values: this.renderHours()}, 
+			{label: '工时', values: this.renderHours(), onClick: this.onClickHours}, 
 			{label: '检查人', values: this.renderChecker(), onClick: this.onClickChecker}, 
 			{label: '评价人', values: this.renderRater(), onClick: this.onClickRater}, 
 		];
@@ -80,14 +81,25 @@ export class VAssignParams extends VPage<CAssignTo> {
 
 	private renderHours() {
 		let time = taskTimeToString(this.cNoteAssign.assignhours);
-		return <input className="flex-fill form-control border-0"
-				type="text"
-				placeholder="2.5或者2：30表示两个半小时"
-				defaultValue={time}
-				onChange={this.onHoursChange}
-				onBlur={this.onHoursBlur}
-				onKeyDown={this.onHoursKeyDown}/>;
+		return <div className="flex-fill form-control border-0">{time}</div>
+		// return <input className="flex-fill form-control border-0"
+		// 		type="text"
+		// 		placeholder="2.5或者2:30表示两个半小时"
+		// 		defaultValue={time}
+		// 		onChange={this.onHoursChange}
+		// 		onBlur={this.onHoursBlur}
+		// 		onKeyDown={this.onHoursKeyDown}/>;
 	}
+
+	private onClickHours = async () => {
+		let chours = new CInputHours(this.cNoteAssign.owner);
+		let h = await chours.inputHours(this.cNoteAssign.assignhours);
+		this.closePage();
+		if (h !== undefined) {
+			this.cNoteAssign.assignhours = h;
+		}
+	}
+
 
 	private onItemChange = (evt:React.ChangeEvent<HTMLInputElement>) => {
 		this.cNoteAssign.point = Number(evt.currentTarget.value);
@@ -96,23 +108,23 @@ export class VAssignParams extends VPage<CAssignTo> {
 	private onItemKeyDown = (evt:React.KeyboardEvent<HTMLInputElement>) => {
 	}
 
-	private onHoursChange = (evt:React.ChangeEvent<HTMLInputElement>) => {
-		let m = checkHourMinutes(evt.target.value);
-		if (m < 0) {
-			m = 0;
-		}
-		this.cNoteAssign.assignhours = m;
-	}
+	// private onHoursChange = (evt:React.ChangeEvent<HTMLInputElement>) => {
+	// 	let m = checkHourMinutes(evt.target.value);
+	// 	if (m < 0) {
+	// 		m = 0;
+	// 	}
+	// 	this.cNoteAssign.assignhours = m;
+	// }
 
-	private onHoursKeyDown = (evt:React.KeyboardEvent<HTMLInputElement>) => {
-	}
+	// private onHoursKeyDown = (evt:React.KeyboardEvent<HTMLInputElement>) => {
+	// }
 
-	protected onHoursBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
-		if (checkHourMinutes(evt.target.value) < 0) {
-			evt.target.value = '';
-			this.cNoteAssign.assignhours = 0;
-		}
-	}
+	// protected onHoursBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
+	// 	if (checkHourMinutes(evt.target.value) < 0) {
+	// 		evt.target.value = '';
+	// 		this.cNoteAssign.assignhours = 0;
+	// 	}
+	// }
 
 	private renderChecker() {
 		return React.createElement(observer(() => this.renderContact(this.cNoteAssign.checker)));

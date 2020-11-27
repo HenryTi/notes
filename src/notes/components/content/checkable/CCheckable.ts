@@ -14,6 +14,8 @@ export class CCheckable extends CContent {
 	private listInput: CheckableListInput;
 	@observable items: ContentCheckItem[] = [];
 	itemKey: number = 1;
+	
+	get isEmpty():boolean { return this.listInput.getList().length === 0; }
 
 	init(obj:any) {
 		if (obj) {

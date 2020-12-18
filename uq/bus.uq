@@ -1,0 +1,51 @@
+/*
+Bus BusBookProject FROM /[book-project]
+    ACCEPT proof {
+		VAR projectId ID, note ID;
+		SET projectId=1;
+		set note=999;
+        BOOK BookFlow at (projectId, $date) SET debit=debit, credit=credit, memo=memo, note=note;
+    };
+
+ACTION TestBusBootProject(
+) {
+	Bus BusBookProject.Proof SET project='看看2', debit=98, memo='test bus';
+};
+*/
+
+Bus BusNotes FROM /notes
+ACCEPT subject {
+	IF $unit < 0 { 
+		TUID Subject SET name=name, discription=discription;
+	}
+	ELSE {
+		TUID Subject UNIQUE($unit, id) SET name=name, discription=discription;
+	}
+}
+ACCEPT item {
+	VAR note ID, unit INT, subjectId ID, subjectName CHAR(100), subjectDiscription CHAR(100);
+	SET unit=$unit;
+	IF $unit<0 {
+		SET unit=0;
+	}
+
+	SET subjectId=a.id, subjectName=a.name, subjectDiscription=a.discription 
+		FROM Subject as a 
+		WHERE a.name=subject;
+	IF NOT subjectId IS NULL {
+		TUID Note INTO note SET
+			type=EnumNoteType.Text,
+			caption=CONCAT(subjectName, '\t', ifnull(subjectDiscription, '')),
+			content=memo,
+			owner=$user;
+		PROC WriteSubject(unit,
+			subjectId,						-- if unit>0, subjectId is idInUnit
+			$user,
+			NULL,							-- cur TIMESTAMP UTC time
+			delta,
+			balance,
+			memo,
+			note,							-- 关联的Note
+		);
+	}
+};

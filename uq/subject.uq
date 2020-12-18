@@ -1,0 +1,160 @@
+TUID Subject (
+	id,
+	MAIN unit ID,							-- 机构。0则通用
+	MAIN idInUnit ID,						-- 机构对应的subject id
+	MAIN name CHAR(100),
+	MAIN discription CHAR(100),
+	stamp (create, update),
+
+	UNIQUE (unit, idInUnit),
+	index unit_id (unit, id) UNIQUE,
+	index unit_name (unit, name) UNIQUE,
+);
+
+-- 计算汇总的一些参数
+BOOK MySetting (
+	KEY user ID [$User],
+	timezone TINYINT DEFAULT 8,				-- 默认北京时间，根据第一次登录的浏览器来设置的
+	startDayOfMonth TINYINT DEFAULT 0,		-- 月初日
+	startMonthOfYear TINYINT DEFAULT 0,		-- 年初月
+);
+
+MAP SubjectUser (
+	KEY user ID,
+	KEY subject ID Subject,
+	stamp TIMESTAMP DEFAULT ONUPDATE,
+	changed TINYINT DEFAULT 0,				-- 每次查询操作，都会把changed设置为0
+	delta DEC(16,4),
+	balance DEC(16,4),
+	memo CHAR(100),
+);
+
+BOOK SubjectHistory (
+	KEY user ID,
+	KEY subject ID Subject,
+	KEY stamp TIMESTAMP,
+	delta DEC(16,4),					-- 增减值
+	balance DEC(16,4),					-- 余额
+	memo CHAR(100),
+	note ID Note,						-- 关联的Note
+);
+
+// 每次写History的时候，同时写SubjectMonth，SubjectWeek, SubjectDay。
+BOOK SubjectYear (
+	KEY user ID,
+	KEY subject ID Subject,
+	KEY date DATE,						-- 1-1号开始
+	delta DEC(16,4),					-- 增减值
+	balance DEC(16,4),					-- 余额
+);
+
+BOOK SubjectMonth (
+	KEY user ID,
+	KEY subject ID Subject,
+	KEY date DATE,						-- 月份1号开始
+	delta DEC(16,4),					-- 增减值
+	balance DEC(16,4),					-- 余额
+);
+
+BOOK SubjectWeek (
+	KEY user ID,
+	KEY subject ID Subject,
+	KEY date DATE,						-- 周一开始
+	delta DEC(16,4),					-- 增减值
+	balance DEC(16,4),					-- 余额
+);
+
+BOOK SubjectDay (
+	KEY user ID,
+	KEY subject ID Subject,
+	KEY date DATE,
+	delta DEC(16,4),					-- 增减值
+	balance DEC(16,4),					-- 余额
+);
+
+ACTION InitMySetting (
+	timezone INT,
+) {
+	IF not exists(SELECT timezone FROM MySetting WHERE user=$user) {
+		BOOK MySetting at($user) SET timezone=timezone;
+	}
+};
+
+PROC WriteSubject (
+	unit ID,
+	subjectId ID,						-- if unit>0, subjectId is idInUnit
+	user ID,
+	cur TIMESTAMP,						-- UTC time
+	delta DEC(16,4),
+	balance DEC(16,4),
+	memo CHAR(100),
+	note ID Note,						-- 关联的Note
+) {
+	IF user IS NULL {
+		RETURN;
+	}
+	IF unit>0 {
+		SET subjectId=(SELECT a.id FROM Subject as a WHERE a.unit=unit AND a.idInUnit=subjectId);
+		IF subjectId IS NULL {RETURN;}
+	}
+
+	VAR timezone TINYINT, startDayOfMonth TINYINT, startMonthOfYear TINYINT, localTime DATETIME;
+	IF cur IS NULL {
+		SET cur=$date;
+	}
+	SET timezone=a.timezone, startDayOfMonth=a.startDayOfMonth, startMonthOfYear=a.startMonthOfYear
+		FROM MySetting as a WHERE a.user=user;
+	IF timezone IS NULL {
+		SET timezone = 8;
+		SET localTime=DateAdd(HOUR, timezone, cur);
+	}
+	IF startDayOfMonth IS NULL {
+		SET startDayOfMonth = 0;
+	}
+	IF startMonthOfYear IS NULL {
+		SET startMonthOfYear = 0;
+	};
+
+	VAR yearNum SMALLINT, monthNum SMALLINT, dayNum SMALLINT, yearDate DATE, monthDate DATE, weekDate DATE, dayDate DATE;
+	SET yearNum=Year(localTime);
+	SET monthNum=Month(localTime);
+	set dayNum=Day(localTime);
+	SET yearDate=CONCAT(yearNum, '-', startMonthOfYear+1, '-', startDayOfMonth+1);
+	IF cur<yearDate {
+		SET yearNum = yearNum-1;
+	}
+	SET monthDate=CONCAT(yearNum, '-', monthNum, '-', startDayOfMonth+1);
+	SET weekDate=CONCAT(yearNum, '-', monthNum, '-', dayNum);
+	SET weekDate = DateAdd(Day, -WEEKDAY(weekDate), weekDate);
+	SET dayDate=CONCAT(yearNum, '-', monthNum, '-', dayNum);
+	IF cur<monthDate {
+		SET monthDate = DateAdd(Month, -1, monthDate);
+	}
+
+	BOOK SubjectUser AT(user, subjectId) SET changed=1, delta=delta, balance=balance, memo=memo;
+	BOOK SubjectHistory AT(user, subjectId, cur) SET delta=delta, balance=balance, memo=memo, note=note;
+	BOOK SubjectYear AT(user, subjectId, DATE(yearDate)) SET delta+=delta, balance=balance;
+	BOOK SubjectMonth AT(user, subjectId, DATE(monthDate)) SET delta+=delta, balance=balance;
+	BOOK SubjectWeek AT(user, subjectId, DATE(weekDate)) SET delta+=delta, balance=balance;
+	BOOK SubjectDay AT(user, subjectId, DATE(dayDate)) SET delta+=delta, balance=balance;
+};
+
+QUERY GetSubjectUser(
+	user ID
+)
+RETURNS ret (
+	subject ID Subject,
+	changed TINYINT,
+	stamp TIMESTAMP,
+	delta DEC(16,4),
+	balance DEC(16,4),
+	memo CHAR(100),
+) {
+	IF user IS NULL {
+		SET user=$user;
+	}
+	INTO ret SELECT a.subject, a.changed, a.stamp, a.delta, a.balance, a.memo
+		FROM SubjectUser as a
+		WHERE a.user=user;
+	BOOK SubjectUser AT(user, *) SET changed=0;
+};
